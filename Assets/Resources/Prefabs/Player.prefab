@@ -539,9 +539,9 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1777532373337928}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 60
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -580,8 +580,6 @@ MonoBehaviour:
   controller: {fileID: 0}
   bulletPrefab: {fileID: 1223834340930200, guid: cfdf13ebf1263894d98134df40adf9b0,
     type: 2}
-  bulletsPool: {fileID: 0}
-  gun: {fileID: 1311094663664704}
 --- !u!124 &124461384882548578
 Behaviour:
   m_ObjectHideFlags: 1

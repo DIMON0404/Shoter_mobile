@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class Joystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
+    // Управление джойстиком
+    // Canvas->MoveController->MovePanel
     public Controller controller;
     public RectTransform joystick;
     private bool isJoystickPressed = false;
@@ -19,7 +21,6 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
         }
         set
         {
-            print("Set touch");
             _touch = value;
             fingerIdOfTouch = value.fingerId;
             JoystickDown();
@@ -29,7 +30,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
     private int fingerIdOfTouch;
 
     [Header("For debug")]
-    public bool __mouseRead = false;
+    public bool __mouseRead = false; // Для нормальной роботы мультитача должно быть false, но не будет работать корректно джойстик  мышью
 
     public Vector2 JoystickValue
     {
@@ -54,13 +55,11 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
 
     private void JoystickDown()
     {
-        print("Down press");
         isJoystickPressed = true;
     }
 
     private void JoystickUp()
     {
-        print("Up press");
         isJoystickPressed = false;
         joystick.localPosition = joysticjStartPosition;
         _joystickjValue = new Vector2(0, 0);
@@ -75,7 +74,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
 	// Update is called once per frame
 	void Update () {
 
-        if (isJoystickPressed)
+        if (isJoystickPressed)  // Прощет джойстика. Результат сохраняется в JoystickValue x и y соответственно, от -1 до 1
         {
             foreach (Touch touch in controller.touchController.touches)
             {
@@ -84,8 +83,6 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
                     _touch = touch;
                 }
             }
-            print(_touch.phase);
-
             if (_touch.phase == TouchPhase.Ended)
             {
                 JoystickUp();
@@ -133,7 +130,7 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
                     Mathf.RoundToInt(((joystick.localPosition.x - joysticjStartPosition.x) * 2 / sizeOfRect.x) * 10) / 10f,
                     Mathf.RoundToInt(((joystick.localPosition.y - joysticjStartPosition.y) * 2 / sizeOfRect.y) * 10) / 10f
                     );
-                controller.PlayerController.MoveAndRotatePlayer(JoystickValue);
+                controller.playerController.MoveAndRotatePlayer(JoystickValue);
             }
         }
 	}

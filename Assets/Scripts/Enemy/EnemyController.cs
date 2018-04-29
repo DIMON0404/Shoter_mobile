@@ -4,8 +4,13 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour {
+    // Управлене действиями врага
+    // На каждом враге
+    public Controller controller;
     private NavMeshAgent navMeshAgent;
     private GameObject target;
+    private int health = 100;
+
 	// Use this for initialization
 	void Start () {
         transform.Find("Head").GetComponent<MeshRenderer>().material.color = new Color(1, Random.Range(0.5f, 1f), 0);
@@ -22,7 +27,13 @@ public class EnemyController : MonoBehaviour {
 
     public void GetDamage(int damage)
     {
-        Controller.enemies.Remove(this);
-        Destroy(gameObject);
+        health -= damage;
+        controller.ui.ChangeHealthBar((float)health / 100);
+        if (health <= 0)
+        {
+            Controller.enemies.Remove(this);
+            controller.Score += 30;
+            Destroy(gameObject);
+        }
     }
 }

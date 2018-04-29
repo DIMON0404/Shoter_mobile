@@ -3,19 +3,53 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
+    // Управление игроком
+    // На Player
     public Controller controller;
     public GameObject bulletPrefab;
-    public GameObject bulletsPool;
-    public GameObject gun;
+    private bool _sightVision = true;
+    public bool SightVision
+    {
+        get { return _sightVision; }
+        set {
+            _sightVision = value;
+            if (!value)
+            {
+                line.transform.localScale = new Vector3(1, 1, 0);
+            }
+        }
+    }
+    private GameObject shouldWithGun;
+    private GameObject gun;
+    private GameObject startPoint;
+    private GameObject endPoint;
+    private GameObject line;
+
+    private float lastShot;
+    private float cooldown = 1f;
+
+    private RaycastHit hit;
 
 	// Use this for initialization
 	void Start () {
-    }
-	
-	// Update is called once per frame
-	void Update () {
+        lastShot = Time.time - cooldown;
+        shouldWithGun = transform.Find("RightShould").gameObject;
+        gun = shouldWithGun.transform.GetChild(0).GetChild(0).gameObject;
+        startPoint = gun.transform.Find("StartPoint").gameObject;
+        endPoint = gun.transform.Find("EndPoint").gameObject;
+        line = endPoint.transform.Find("Line").gameObject;
     }
 
+    void Update()
+    {
+        if (_sightVision)
+        {
+            if (Physics.Raycast(endPoint.transform.position, endPoint.transform.position - startPoint.transform.position, out hit, 100))
+            {
+                line.transform.localScale = new Vector3(1, 1, hit.distance);
+            }
+        }
+    }
     public void MoveAndRotatePlayer(Vector2 value)
     {
         transform.position = Vector3.MoveTowards(transform.position, 
@@ -35,9 +69,25 @@ public class PlayerController : MonoBehaviour {
 
     public void Shot()
     {
-        GameObject bullet = Instantiate(bulletPrefab, bulletsPool.transform);
-        bullet.GetComponent<ShotController>().parentGun = gun;
-        bullet.transform.position = gun.transform.Find("EndPoint").position;
-        bullet.GetComponent<Rigidbody>().AddForce((gun.transform.Find("EndPoint").position - gun.transform.Find("StartPoint").position) * 7000);
+        if (Time.time - cooldown > lastShot)
+        {
+            StartCoroutine(RotateShould());
+            GameObject bullet = Instantiate(bulletPrefab, controller.bulletsPool.transform);
+            bullet.GetComponent<ShotController>().parentGun = gun;
+            bullet.GetComponent<ShotController>().controller = controller;
+            bullet.transform.position = endPoint.transform.position;
+            bullet.transform.rotation = gun.transform.rotation;
+            bullet.transform.Rotate(90, 0, 0);
+            bullet.GetComponent<Rigidbody>().AddForce((endPoint.transform.position - startPoint.transform.position) * 5000);
+            lastShot = Time.time;
+            gun.GetComponent<AudioSource>().Play();
+        }
+    }
+
+    private IEnumerator RotateShould()
+    {
+        shouldWithGun.transform.Rotate(new Vector3(-90, 0, 0));
+        yield return new WaitForSeconds(0.5f);
+        shouldWithGun.transform.Rotate(90, 0, 0);
     }
 }
